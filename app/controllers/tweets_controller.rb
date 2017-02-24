@@ -7,11 +7,22 @@ class TweetsController < ApplicationController
   def create
     @tweet = Tweet.new(tweet_params)
 
-    if @tweet.save
-      redirect_to tweets_path
+
+    if request.xhr?
+      @tweet.save
+      respond_to do |format|
+        format.html { render html: "<li class='tweet'><p>#{@tweet.message}</p><time>#{@tweet.created_at}</time></li>".html_safe }
+        format.json { render json: @tweet }
+      end
+
     else
-      render :index
+      if @tweet.save
+        redirect_to tweets_path
+      else
+        render :index
+      end
     end
+
   end
 
   def destroy
